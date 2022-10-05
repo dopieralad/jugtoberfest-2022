@@ -1,0 +1,8 @@
+FROM apache/beam_python3.8_sdk:2.41.0
+
+# Install Python dependencies
+COPY ./requirements-worker.txt ./requirements.txt
+RUN pip install -r requirements.txt
+
+# Copy Python sources
+COPY ./jugtoberfest-2022/* ./jugtoberfest-2022/

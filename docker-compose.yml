@@ -1,0 +1,44 @@
+version: "3.9"
+
+services:
+  java-pipeline:
+    image: "eu.gcr.io/${PROJECT}/jugtoberfest-2022-java-pipeline"
+    build:
+      context: "./"
+      dockerfile: "Dockerfile-Java-Pipeline"
+    volumes:
+      - "${GOOGLE_APPLICATION_CREDENTIALS}:${GOOGLE_APPLICATION_CREDENTIALS}"
+    environment:
+      - "GOOGLE_APPLICATION_CREDENTIALS=${GOOGLE_APPLICATION_CREDENTIALS}"
+      - "RUNNER=${RUNNER}"
+    depends_on:
+      - "python-expansion-service"
+      - "python-job-service"
+    network_mode: "host"
+
+  python-expansion-service:
+    image: "eu.gcr.io/${PROJECT}/jugtoberfest-2022-python-expansion-service"
+    build:
+      context: "./"
+      dockerfile: "Dockerfile-Python-Expansion-Service"
+    environment:
+      - "IMAGE=eu.gcr.io/${PROJECT}/jugtoberfest-2022-python-worker"
+    network_mode: "host"
+
+  python-job-service:
+    image: "eu.gcr.io/${PROJECT}/jugtoberfest-2022-python-job-service"
+    build:
+      context: "./"
+      dockerfile: "Dockerfile-Python-Job-Service"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      - "${GOOGLE_APPLICATION_CREDENTIALS}:${GOOGLE_APPLICATION_CREDENTIALS}"
+    environment:
+      - "GOOGLE_APPLICATION_CREDENTIALS=${GOOGLE_APPLICATION_CREDENTIALS}"
+    network_mode: "host"
+
+  python-worker:
+    image: "eu.gcr.io/${PROJECT}/jugtoberfest-2022-python-worker"
+    build:
+      context: "./"
+      dockerfile: "Dockerfile-Python-Worker"
